@@ -81,7 +81,3 @@ Want to improve **LeetGenius**? Feel free to submit pull requests or open issues
 ## **License**
 
 This project is open-source and available under the **MIT License**.
-
----
-
-This README ensures your GitHub project is well-documented with all necessary details. Let me know if you need any changes! 🚀🔥
