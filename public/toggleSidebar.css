@@ -1,0 +1,60 @@
+:root {
+  --border-radius: 8px;
+  --border-width: 2px;
+  --border-color: #ff00ff;
+  --duration: 5s;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #17171b;
+  margin: 0;
+}
+
+.shine-border {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 300px;
+  min-height: 60px;
+  padding: 20px;
+  font-size: 18px;
+  color: white;
+  background: #222;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.shine-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--border-radius);
+  padding: var(--border-width);
+  background: radial-gradient(
+    transparent,
+    transparent,
+    var(--border-color),
+    transparent,
+    transparent
+  );
+  background-size: 300% 300%;
+  animation: shine-animation var(--duration) linear infinite;
+  mask-composite: exclude;
+}
+
+@keyframes shine-animation {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
