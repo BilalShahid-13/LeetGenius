@@ -89,7 +89,11 @@ export async function run(input) {
     history: [],
   });
 
-  const result = await chatSession.sendMessage(input);
-  // return await result.response.text();
-  return JSON.parse(await result.response.text());
+  try {
+    const result = await chatSession.sendMessage(input);
+    return JSON.parse(await result.response.text());
+  } catch (error) {
+    console.error(error);
+    return error;
+  }
 }

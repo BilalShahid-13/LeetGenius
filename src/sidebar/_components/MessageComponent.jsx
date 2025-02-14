@@ -1,8 +1,21 @@
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { dark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { anOldHope, dark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 // import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 const MessageComponent = ({ msg, index }) => {
+  function getThumbnail(url) {
+    // Check if it's a YouTube link
+    const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/;
+    const match = url.match(youtubeRegex);
+
+    if (match) {
+      // Extract video ID and return YouTube thumbnail
+      return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+    } else {
+      const domain = new URL(url).hostname;
+      return `https://www.google.com/s2/favicons?domain=${domain}`;
+    }
+  }
   return (
     <div
       className={`w-full font-montserrat p-2 text-sm break-words ${msg.role === "user"
@@ -10,7 +23,7 @@ const MessageComponent = ({ msg, index }) => {
         : "dark:bg-zinc-800 bg-gray-200 dark:text-gray-200 rounded-bl-none rounded-lg"
         }`}
     >
-      {/* {msg.role === "user" && <p>{msg?.text}</p>} */}
+      {msg.role === "user" && <p>{msg?.text}</p>}
       {msg.role === "error" && <p className="bg-red-500">{msg?.text}</p>}
       {msg.role === "bot" && index === 0 && <p> Hello! How can I help you?</p>}
 
@@ -30,7 +43,7 @@ const MessageComponent = ({ msg, index }) => {
             <div>
               <h6 className="font-semibold mt-2">✅ Best Practices:</h6>
               <ul className="list-disc pl-4">
-                {msg?.text?.best_practices.map((practice, i) => (
+                {msg?.text?.best_practices?.map((practice, i) => (
                   <li key={i}>{practice}</li>
                 ))}
               </ul>
@@ -51,7 +64,7 @@ const MessageComponent = ({ msg, index }) => {
             <div>
               <h6 className="font-semibold mt-2">❌ Common Pitfalls:</h6>
               <ul className="list-disc pl-4">
-                {msg.text?.pitfalls.map((pitfall, i) => (
+                {msg.text?.pitfalls?.map((pitfall, i) => (
                   <li key={i}>{pitfall}</li>
                 ))}
               </ul>
@@ -86,12 +99,13 @@ const MessageComponent = ({ msg, index }) => {
                 {step?.test_cases}
               </p>
               {step?.code && (
-                <>
-                  <span className="font-semibold">📝 Code</span>
-                  <code className="bg-gray-900 text-white p-2 rounded-md block overflow-x-auto">
+                <div
+                className="bg-gray-900 rounded-lg overflow-x-scroll">
+                  <span className="font-semibold">📝 Code: </span>
+                  <SyntaxHighlighter style={anOldHope}>
                     {step?.code}
-                  </code>
-                </>
+                  </SyntaxHighlighter>
+                </div>
               )}
             </div>
           ))}
@@ -101,9 +115,9 @@ const MessageComponent = ({ msg, index }) => {
             <div>
               <h6 className="font-semibold mt-2">🧪 Test Cases:</h6>
               <ul className="list-disc pl-4">
-                {msg.text?.test_cases.map((test, i) => (
+                {msg.text?.test_cases?.map((test, i) => (
                   <ul key={i}>
-                    <li>Input: {test?.input}</li>&nbsp;,&nbsp;
+                    <li>Input: {test?.input}</li>
                     <li>Expected Output: {test?.expected_output}</li>
                   </ul>
                 ))}
@@ -111,65 +125,25 @@ const MessageComponent = ({ msg, index }) => {
             </div>
           )}
 
-          {/* YouTube Videos */}
-          {/* {msg.text.further_learning?.length > 0 && (
-            <div>
-              <h6 className="font-semibold mt-2">📺 Watch on YouTube:</h6>
-              <ul className="list-disc pl-4">
-                {msg.text?.further_learning.map((video, i) => (
-                  <li key={i}>
-                    <a href={video?.link} target="_blank" className="text-blue-500 underline">
-                      {video}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )} */}
-          {/* {msg.text?.youtube_videos?.length > 0 && (
-            <div>
-              <h6 className="font-semibold mt-2">📺 Watch on YouTube:</h6>
-              <ul className="list-disc pl-4">
-                {msg.text.youtube_videos.map((video, i) => (
-                  <li key={i}>
-                    <a href={video} target="_blank" className="text-blue-500 underline">
-                      {video}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )} */}
-
-          {/* Blog Links */}
-          {/* {msg.text?.blogs?.length > 0 && (
-            <div>
-              <h6 className="font-semibold mt-2">📝 Read Blogs:</h6>
-              <ul className="list-disc pl-4">
-                {msg.text.blogs.map((blog, i) => (
-                  <li key={i}>
-                    <a href={blog} target="_blank" className="text-blue-500 underline">
-                      {blog}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )} */}
           {msg?.text?.relevant_links?.length > 0 && (
             <div>
-              <h6 className="font-semibold mt-2">📺 Watch on YouTube:</h6>
-              <ul className="list-disc pl-4">
+              <h6 className="font-semibold mt-2">📺 Watch on YouTube & Read Blogs:</h6>
+              <div className="space-y-4"> {/* Adds spacing between items */}
                 {msg.text?.relevant_links.map((video, i) => (
-                  <li key={i}>
-                    <a href={video} target="_blank" className="text-blue-500 underline">
+                  <div key={i} className="bg-gray-900 p-4 rounded-lg flex items-center space-x-4">
+                    <img className="rounded"
+                      src={getThumbnail(video)} alt="Thumbnail" />
+                    <a href={video} target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 underline break-all">
                       {video}
                     </a>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
+
         </div>
       )}
     </div>
