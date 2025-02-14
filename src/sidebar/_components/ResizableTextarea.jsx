@@ -1,8 +1,8 @@
-import { Clipboard, Send } from "lucide-react";
+import { Clipboard, Loader2, Send } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Button } from "../../components/ui/button";
 
-const ResizableTextarea = ({ onChange, onKeyDown, value, handleSend }) => {
+const ResizableTextarea = ({ onChange, onKeyDown, value, handleSend, onLoading }) => {
   const handlePaste = async () => {
     try {
       const text = await navigator.clipboard.readText();
@@ -21,6 +21,7 @@ const ResizableTextarea = ({ onChange, onKeyDown, value, handleSend }) => {
         <Clipboard />
       </Button>
       <TextareaAutosize
+        disabled={onLoading}
         minRows={1}
         maxRows={6}
         value={value} // ✅ Always use the controlled value
@@ -31,8 +32,9 @@ const ResizableTextarea = ({ onChange, onKeyDown, value, handleSend }) => {
         placeholder="Type or paste your code here..."
       />
       <Button variant="outline" onClick={handleSend}
+        disabled={onLoading}
         className="dark:bg-zinc-900 bg-gray-200 dark:hover:bg-zinc-950 rounded-full px-[10px] py-4">
-        <Send />
+        {onLoading ? <Loader2 /> : <Send />}
       </Button>
     </div>
   );

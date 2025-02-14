@@ -3,6 +3,12 @@ import react from "@vitejs/plugin-react-swc";
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      "@google/generative-ai":
+        "/node_modules/@google/generative-ai/dist/index.mjs",
+    },
+  },
   build: {
     rollupOptions: {
       input: {

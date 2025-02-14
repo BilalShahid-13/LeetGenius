@@ -4,6 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "../../components/ui/button";
 import ResizableTextarea from "./ResizableTextarea";
 import gsap from "gsap";
+import { run } from "../../../api/GET/gemini";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
+import MessageComponent from "./MessageComponent";
 
 export default function ChatBox() {
   const [messages, setMessages] = useState([
@@ -11,6 +16,7 @@ export default function ChatBox() {
   ]);
   const [input, setInput] = useState("");
   const [hasUserTyped, setHasUserTyped] = useState(false);
+  const [loading, setLoading] = useState(false);
   const chatContainerRef = useRef(null);
   const chatEndRef = useRef(null);
   const clipboardRef = useRef([]);
@@ -28,24 +34,38 @@ export default function ChatBox() {
     }
   }, [messages, hasUserTyped]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
     setHasUserTyped(true);
     setMessages([...messages, { role: "user", text: input }]);
     setInput('');
 
-    setTimeout(() => {
+    try {
+      setLoading(true);
+      const response = await run(input)
+      console.log(response);
+      if (response) {
+        setMessages((prev) => [
+          ...prev,
+          { role: "bot", text: response }
+        ]);
+      }
+    } catch (error) {
       setMessages((prev) => [
         ...prev,
-        { role: "bot", text: "This is a sample AI response!" }
-      ]);
-    }, 1000);
+        { role: "error", text: "Something went wrong" }
+      ])
+      console.error('error', error);
+    } finally {
+      setLoading(false)
+    }
+
   };
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
-    setInput((prev) => prev + text);
+    // setInput((prev) => prev + text);
   };
 
   useEffect(() => {
@@ -64,16 +84,15 @@ export default function ChatBox() {
         {messages.map((msg, i) => (
           <motion.div
             key={i}
-
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
             onMouseEnter={() => setClipboardToggler(i)}
             onMouseLeave={() => setClipboardToggler(null)}
-            className="mb-2 p-2 rounded-lg max-w-[75%] flex flex-col gap-1"
+            className="mb-2 p-2 rounded-lg max-w-[90%] flex flex-col gap-1"
             style={{ alignSelf: msg.role === "user" ? "flex-end" : "flex-start" }}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-start justify-start gap-2">
               {msg.role === "bot" && (
                 <img
                   src="icons/brain-bulb.svg"
@@ -83,14 +102,7 @@ export default function ChatBox() {
                   alt="AI icon"
                 />
               )}
-              <code
-                className={`font-montserrat p-2 text-sm break-words ${msg.role === "user"
-                    ? "bg-yellow-500 text-white rounded-br-none rounded-lg"
-                    : "dark:bg-zinc-800 bg-gray-200 dark:text-gray-200 rounded-bl-none rounded-lg"
-                  }`}
-              >
-                {msg.text}
-              </code>
+              <MessageComponent msg={msg} index={i} error={msg.text}/>
             </div>
 
             {clipboardToggler === i && msg.role === "bot" && (
@@ -112,6 +124,7 @@ export default function ChatBox() {
 
       <ResizableTextarea
         value={input}
+        onLoading={loading}
         handleSend={handleSend}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {
