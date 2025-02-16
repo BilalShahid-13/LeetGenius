@@ -26,6 +26,7 @@ export default defineConfig({
         },
       },
     },
+    chunkSizeWarningLimit: 1000,
   },
   css: {
     postcss: "./postcss.config.js", // Ensure PostCSS processes Tailwind

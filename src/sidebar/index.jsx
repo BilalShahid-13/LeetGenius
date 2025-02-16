@@ -1,17 +1,19 @@
-import React, { useEffect } from "react";
+import React, { Suspense, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider, useTheme } from "../components/theme-provider";
-import App from "./App";
+
+// Lazy load App
+const App = React.lazy(() => import("./App"));
 
 const Root = () => {
-  const { theme, setTheme } = useTheme(); // Get theme from provider
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     async function fetchTheme() {
       try {
         const storedTheme = await browser.storage.local.get("vite-ui-theme");
         if (storedTheme["vite-ui-theme"]) {
-          setTheme(storedTheme["vite-ui-theme"]); // Sync with theme provider
+          setTheme(storedTheme["vite-ui-theme"]);
         }
       } catch (error) {
         console.error("Error fetching theme:", error);
@@ -20,7 +22,6 @@ const Root = () => {
 
     fetchTheme();
 
-    // Listen for changes in browser storage and sync with state
     function handleStorageChange(changes) {
       if (changes["vite-ui-theme"]) {
         setTheme(changes["vite-ui-theme"].newValue);
@@ -33,10 +34,13 @@ const Root = () => {
     };
   }, [setTheme]);
 
-  return <App />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <App />
+    </Suspense>
+  );
 };
 
-// Ensure sidebar-root exists before rendering
 const rootElement = document.getElementById("sidebar-root");
 if (rootElement) {
   createRoot(rootElement).render(

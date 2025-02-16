@@ -24,8 +24,7 @@
     "open_at_install": true
   },
   "background": {
-    "scripts": ["background.js"],
-    "persistent": true
+    "scripts": ["background.js"]
   },
 
   "content_scripts": [
@@ -48,5 +47,6 @@
     "16": "icons/brain-bulb.svg",
     "48": "icons/brain-bulb.svg",
     "128": "icons/brain-bulb.svg"
-  }
+  },
+  "incognito": "split"
 }

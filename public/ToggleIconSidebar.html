@@ -19,14 +19,9 @@
   </button>
 
   <script>
-    document
-      .getElementById("toggleSidebar-btn")
-      .addEventListener("click", toggleSidebar);
-
-    async function toggleSidebar() {
-      console.log("Toggling sidebar...");
-      await browser.sidebarAction.toggle();
-    }
+    document.getElementById("toggleSidebar-btn").addEventListener("click", () => {
+      browser.runtime.sendMessage({ action: "toggleSidebar" });
+    });
 
   </script>
 

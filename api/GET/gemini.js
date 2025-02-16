@@ -72,7 +72,7 @@ Strict Structure Enforcement
 
     ⚠️ Do NOT add extra objects. Follow the exact format provided.
     ⚠️ Keep "relevant_links" as an array of links (at least one link required).
-    ⚠️ Every response must contain all required objects.`,
+    ⚠️ Every response must contain all required objects.`, // (Keep the full instruction)
 });
 
 const generationConfig = {
@@ -83,17 +83,36 @@ const generationConfig = {
   responseMimeType: "application/json",
 };
 
-export async function run(input) {
+let history = []; // Store conversation history globally
+
+export async function run(input, language) {
+  // Append user input to history
+  // history.push({
+  //   role: "user",
+  //   parts: [{ text: input }],
+  // });
+
   const chatSession = model.startChat({
     generationConfig,
     history: [],
   });
 
   try {
-    const result = await chatSession.sendMessage(input);
-    return JSON.parse(await result.response.text());
+    const result = await chatSession.sendMessage(
+      `my programing language is ${language} and the problem is ${input}.`
+    );
+    const responseText = await result.response.text();
+    const jsonResponse = JSON.parse(responseText);
+
+    // Append model's response to history
+    // history.push({
+    //   role: "model",
+    //   parts: [{ text: responseText }],
+    // });
+
+    return jsonResponse;
   } catch (error) {
-    console.error(error);
+    console.error("Error:", error);
     return error;
   }
 }
